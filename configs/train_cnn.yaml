@@ -1,0 +1,12 @@
+﻿data_root: dataset
+artifacts_dir: artifacts
+epochs: 60
+batch_size: 64
+lr: 0.0003
+seed: 42
+num_workers: 4
+use_wandb: false
+wandb_project: fire-moe
+run_name: cnn_resnet18_config
+image_size: 256
+model_type: resnet18

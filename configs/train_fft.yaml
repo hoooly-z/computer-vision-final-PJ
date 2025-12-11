@@ -1,0 +1,11 @@
+﻿data_root: dataset
+cache_dir: .feature_cache
+artifacts_dir: artifacts
+epochs: 35
+batch_size: 256
+lr: 0.0005
+seed: 42
+num_workers: 4
+use_wandb: false
+wandb_project: fire-moe
+run_name: fft_expert_config

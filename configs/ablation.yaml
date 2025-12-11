@@ -1,0 +1,10 @@
+﻿data_root: dataset
+cache_dir: .feature_cache
+artifacts_dir: artifacts
+hist_checkpoint: artifacts/hist_expert.pth
+fft_checkpoint: artifacts/fft_expert.pth
+cnn_checkpoint: artifacts/cnn_expert.pth
+moe_checkpoint: artifacts/moe_gating.pth
+batch_size: 64
+image_size: 224
+output: ablation.json
