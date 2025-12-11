@@ -104,18 +104,22 @@ def main() -> None:
     cnn_logits = torch.cat(cnn_logits_all)
     labels = torch.cat(labels_all)
 
-    def accuracy(logits: torch.Tensor) -> float:
+    def summarize(logits: torch.Tensor) -> dict:
         preds = torch.argmax(logits, dim=1)
-        return float((preds == labels).float().mean().item())
+        acc = float((preds == labels).float().mean().item())
+        matrix = torch.zeros(len(CLASSES), len(CLASSES), dtype=torch.int64)
+        for true_label, pred_label in zip(labels, preds):
+            matrix[int(true_label.item()), int(pred_label.item())] += 1
+        return {"accuracy": acc, "confusion": matrix.tolist()}
 
     results = {
-        "hist_only": accuracy(hist_logits),
-        "fft_only": accuracy(fft_logits),
-        "cnn_only": accuracy(cnn_logits),
-        "hist_fft_avg": accuracy((hist_logits + fft_logits) / 2.0),
-        "hist_cnn_avg": accuracy((hist_logits + cnn_logits) / 2.0),
-        "fft_cnn_avg": accuracy((fft_logits + cnn_logits) / 2.0),
-        "all_avg": accuracy((hist_logits + fft_logits + cnn_logits) / 3.0),
+        "hist_only": summarize(hist_logits),
+        "fft_only": summarize(fft_logits),
+        "cnn_only": summarize(cnn_logits),
+        "hist_fft_avg": summarize((hist_logits + fft_logits) / 2.0),
+        "hist_cnn_avg": summarize((hist_logits + cnn_logits) / 2.0),
+        "fft_cnn_avg": summarize((fft_logits + cnn_logits) / 2.0),
+        "all_avg": summarize((hist_logits + fft_logits + cnn_logits) / 3.0),
     }
 
     if moe_model is not None:
@@ -128,16 +132,20 @@ def main() -> None:
                     confidence_from_logits(cnn_logits),
                 ],
                 dim=1,
-            )
-            moe_preds = moe_model(expert_logits.to(device), confidences.to(device)).cpu()
-        results["moe_combiner"] = accuracy(moe_preds)
+            ).to(device)
+            moe_preds = moe_model(expert_logits, confidences).cpu()
+        results["moe_combiner"] = summarize(moe_preds)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
     print("Ablation results:")
-    for name, acc in results.items():
-        print(f"  {name:15s}: {acc:.4f}")
+    for name, stats in results.items():
+        print(f"  {name:15s}: {stats['accuracy']:.4f}")
+
+
+if __name__ == "__main__":
+    main()
 
 
 if __name__ == "__main__":
