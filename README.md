@@ -59,7 +59,7 @@ pip install -r requirements.txt
 
 所有脚本都支持 --config path/to.yaml，可以把常用超参写进 YAML，避免频繁敲命令行。示例文件位于 configs/：
 
-`ash
+`bash
 python code/train_hist.py --config configs/train_hist.yaml
 python code/train_cnn.py --config configs/train_cnn.yaml --use-wandb  # 命令行参数仍可覆盖配置
 python code/inference.py --config configs/inference.yaml
